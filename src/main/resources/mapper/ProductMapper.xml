@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.shop2.mapper.ProductMapper">
+
+    <!--
+        상품 전체 목록
+        resultType="Product" → 한 줄마다 Product 객체를 만들어서 List로 돌려줘요
+    -->
+    <select id="findAll" resultType="Product">
+        SELECT id, brand, name, price, stock, description, image_url, created_at
+        FROM product
+        ORDER BY id ASC
+    </select>
+
+    <!-- 상품 번호로 한 개 찾기 -->
+    <select id="findById" parameterType="Long" resultType="Product">
+        SELECT id, brand, name, price, stock, description, image_url, created_at
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+</mapper>

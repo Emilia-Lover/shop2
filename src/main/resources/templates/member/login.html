@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - SHOP2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container narrow">
+    <h1>로그인</h1>
+
+    <!-- 회원가입 직후 안내 문구 -->
+    <p class="alert" th:if="${message}" th:text="${message}"></p>
+
+    <!-- 로그인 실패 시 (/login?error) -->
+    <p class="alert alert-error" th:if="${param.error}">로그인에 실패했어요. 다시 시도해 주세요.</p>
+
+    <!-- 로그아웃 직후 (/login?logout) -->
+    <p class="alert" th:if="${param.logout}">로그아웃됐어요.</p>
+
+    <!--
+        Spring Security는 기본으로 username, password 라는 이름의 입력값을 읽어요.
+        그래서 input의 name을 꼭 username, password로 맞춰야 해요.
+    -->
+    <form th:action="@{/login}" method="post" class="form">
+        <label for="username">아이디</label>
+        <input type="text" id="username" name="username" required autofocus>
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit" class="button">로그인</button>
+    </form>
+
+    <!-- ===== SNS 로그인 ===== -->
+    <div class="divider"><span>또는</span></div>
+
+    <!--
+        /oauth2/authorization/{사이트이름} 은 Spring Security가 자동으로 만들어 주는 주소예요.
+        {사이트이름}은 application.properties의 registration.google / naver / kakao 와 같아요.
+    -->
+    <div class="sns-buttons">
+        <a class="sns-button google" th:href="@{/oauth2/authorization/google}">G&nbsp;&nbsp;구글로 로그인</a>
+        <a class="sns-button naver" th:href="@{/oauth2/authorization/naver}">N&nbsp;&nbsp;네이버로 로그인</a>
+        <a class="sns-button kakao" th:href="@{/oauth2/authorization/kakao}">K&nbsp;&nbsp;카카오로 로그인</a>
+    </div>
+
+    <p class="sub-link">
+        아직 회원이 아니신가요? <a th:href="@{/join}">회원가입</a>
+    </p>
+</main>
+
+</body>
+</html>

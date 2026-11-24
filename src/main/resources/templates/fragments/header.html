@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!--
+    th:fragment="header" → 이 부분에 "header"라는 이름을 붙여요.
+    다른 화면에서 th:replace="~{fragments/header :: header}" 로 불러다 써요.
+-->
+<header class="header" th:fragment="header">
+    <a class="logo" th:href="@{/}">SHOP2</a>
+    <nav class="nav">
+        <!-- 로그인하지 않았을 때만 보임 -->
+        <th:block sec:authorize="isAnonymous()">
+            <a th:href="@{/login}">로그인</a>
+            <a th:href="@{/join}">회원가입</a>
+        </th:block>
+
+        <!-- 로그인했을 때만 보임 -->
+        <th:block sec:authorize="isAuthenticated()">
+            <!-- principal.member.name → PrincipalDetails.getMember().getName() -->
+            <span><strong sec:authentication="principal.member.name"></strong>님</span>
+            <a th:href="@{/cart}">🛒 장바구니</a>
+            <a th:href="@{/mypage}">마이페이지</a>
+            <!-- 로그아웃은 보안상 POST로 보내야 해요 (th:action이 CSRF 토큰을 자동으로 넣어줌) -->
+            <form th:action="@{/logout}" method="post" class="inline-form">
+                <button type="submit" class="link-button">로그아웃</button>
+            </form>
+        </th:block>
+    </nav>
+</header>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' - SHOP2'">상품 상세 - SHOP2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container">
+    <a class="back-link" th:href="@{/}">← 상품 목록으로</a>
+
+    <!-- 장바구니에 담은 뒤 안내 문구 -->
+    <p class="alert" th:if="${message}">
+        <span th:text="${message}">장바구니에 담았어요!</span>
+        <a class="alert-link" th:href="@{/cart}">장바구니 보러 가기 →</a>
+    </p>
+    <!-- 재고 부족 같은 오류 문구 -->
+    <p class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+
+    <div class="product-detail">
+        <!-- 왼쪽: 큰 사진 -->
+        <div class="detail-image">
+            <img th:src="${product.imageUrl}" th:alt="${product.name}">
+        </div>
+
+        <!-- 오른쪽: 상품 정보 -->
+        <div class="detail-info">
+            <p class="detail-brand" th:text="${product.brand}">브랜드</p>
+            <h1 th:text="${product.name}">상품 이름</h1>
+
+            <p class="detail-price"
+               th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'">0원</p>
+
+            <table class="info-table">
+                <tr>
+                    <th>브랜드</th>
+                    <td th:text="${product.brand}"></td>
+                </tr>
+                <tr>
+                    <th>재고</th>
+                    <td>
+                        <span class="text-soldout" th:if="${product.soldOut}">품절</span>
+                        <span th:unless="${product.soldOut}" th:text="${product.stock} + '개 남음'">0개 남음</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>배송</th>
+                    <td>무료배송 · 기본 설치 포함</td>
+                </tr>
+            </table>
+
+            <!-- 상품 설명: DB에 넣은 줄바꿈(\n)이 그대로 보이도록 CSS에서 pre-line 처리 -->
+            <p class="detail-description" th:text="${product.description}">상품 설명</p>
+
+            <!-- ===== 장바구니 담기 영역 ===== -->
+
+            <!-- ① 품절이면 누를 수 없는 버튼 -->
+            <button type="button" class="button button-full" th:if="${product.soldOut}" disabled>
+                품절된 상품이에요
+            </button>
+
+            <th:block th:unless="${product.soldOut}">
+
+                <!-- ② 로그인했으면: 수량 선택 + 담기 -->
+                <form sec:authorize="isAuthenticated()"
+                      th:action="@{/cart/add}" method="post" class="cart-form">
+                    <!-- 어떤 상품인지 같이 보내요 (화면에는 안 보임) -->
+                    <input type="hidden" name="productId" th:value="${product.id}">
+
+                    <label for="quantity">수량</label>
+
+                    <!--
+                        [−] [숫자] [+] 묶음
+                        type="button" → 눌러도 form이 전송되지 않아요 (숫자만 바뀜)
+                        min, max → JS가 이 범위 안에서만 숫자를 바꿔요 (서버에서도 한 번 더 검사해요)
+                    -->
+                    <div class="qty-stepper">
+                        <button type="button" class="qty-btn" data-step="-1" aria-label="수량 줄이기">−</button>
+                        <input type="number" id="quantity" name="quantity" class="qty-input"
+                               value="1" min="1" th:max="${product.stock}" required>
+                        <button type="button" class="qty-btn" data-step="1" aria-label="수량 늘리기">+</button>
+                    </div>
+
+                    <button type="submit" class="button">장바구니 담기</button>
+                </form>
+
+                <!-- ③ 로그인 안 했으면: 로그인 화면으로 갔다가 이 상품으로 돌아오기 -->
+                <a sec:authorize="isAnonymous()"
+                   class="button button-full button-link"
+                   th:href="@{/cart/login-then/{id}(id=${product.id})}">
+                    로그인하고 장바구니 담기
+                </a>
+            </th:block>
+        </div>
+    </div>
+</main>
+
+<!-- 수량 [−] [+] 버튼 동작 -->
+<script th:src="@{/js/quantity.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOP2 - 가전제품 쇼핑몰</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- 공통 상단 메뉴 불러오기 -->
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container">
+    <!-- 안내 문구 -->
+    <p class="alert" th:if="${message}" th:text="${message}"></p>
+
+    <h1>전체 가전제품</h1>
+
+    <!-- 상품이 하나도 없을 때 -->
+    <p th:if="${#lists.isEmpty(products)}">등록된 상품이 없어요.</p>
+
+    <!--
+        th:each → products 목록을 하나씩 꺼내서 카드를 반복해서 만들어요
+        @{/products/{id}(id=${product.id})} → /products/3 같은 주소를 만들어줘요
+    -->
+    <div class="product-grid">
+        <a class="product-card"
+           th:each="product : ${products}"
+           th:href="@{/products/{id}(id=${product.id})}">
+
+            <div class="product-image">
+                <img th:src="${product.imageUrl}" th:alt="${product.name}">
+                <!-- 품절이면 사진 위에 "품절" 표시 -->
+                <span class="badge-soldout" th:if="${product.soldOut}">품절</span>
+            </div>
+
+            <div class="product-info">
+                <p class="product-brand" th:text="${product.brand}">브랜드</p>
+                <p class="product-name" th:text="${product.name}">상품 이름</p>
+                <!-- 649000 → 649,000 처럼 세 자리마다 쉼표 -->
+                <p class="product-price"
+                   th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'">0원</p>
+            </div>
+        </a>
+    </div>
+</main>
+
+</body>
+</html>

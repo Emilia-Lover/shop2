@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장바구니 - SHOP2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container">
+    <h1>장바구니</h1>
+
+    <!-- 안내 / 오류 문구 -->
+    <p class="alert" th:if="${message}" th:text="${message}"></p>
+    <p class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+
+    <!-- ===== 장바구니가 비었을 때 ===== -->
+    <div class="cart-empty" th:if="${#lists.isEmpty(items)}">
+        <p>장바구니가 비어 있어요.</p>
+        <a class="button button-link" th:href="@{/}">가전제품 구경하러 가기</a>
+    </div>
+
+    <!-- ===== 장바구니에 상품이 있을 때 ===== -->
+    <th:block th:unless="${#lists.isEmpty(items)}">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>상품</th>
+                <th class="col-price">가격</th>
+                <th class="col-qty">수량</th>
+                <th class="col-price">합계</th>
+                <th class="col-delete"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <!-- 상품 (사진 + 브랜드 + 이름) → 누르면 상품 상세로 -->
+                <td>
+                    <a class="cart-product" th:href="@{/products/{id}(id=${item.productId})}">
+                        <img th:src="${item.imageUrl}" th:alt="${item.name}">
+                        <div>
+                            <p class="product-brand" th:text="${item.brand}">브랜드</p>
+                            <p class="cart-product-name" th:text="${item.name}">상품 이름</p>
+                        </div>
+                    </a>
+                </td>
+
+                <!-- 한 개 가격 -->
+                <td class="col-price"
+                    th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')} + '원'">0원</td>
+
+                <!-- 수량 변경: [−] [숫자] [+] 로 숫자를 바꾼 뒤 [변경]을 누르면 저장돼요 -->
+                <td class="col-qty">
+                    <form th:action="@{/cart/{id}/quantity(id=${item.cartItemId})}" method="post" class="qty-form">
+                        <div class="qty-stepper">
+                            <button type="button" class="qty-btn" data-step="-1" aria-label="수량 줄이기">−</button>
+                            <input type="number" name="quantity" class="qty-input"
+                                   th:value="${item.quantity}" min="1" th:max="${item.stock}" required>
+                            <button type="button" class="qty-btn" data-step="1" aria-label="수량 늘리기">+</button>
+                        </div>
+                        <button type="submit" class="button-small">변경</button>
+                    </form>
+                </td>
+
+                <!-- 합계 (가격 × 수량) -->
+                <td class="col-price cart-line-total"
+                    th:text="${#numbers.formatInteger(item.totalPrice, 3, 'COMMA')} + '원'">0원</td>
+
+                <!-- 삭제 -->
+                <td class="col-delete">
+                    <form th:action="@{/cart/{id}/delete(id=${item.cartItemId})}" method="post">
+                        <button type="submit" class="button-small button-gray">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 총 금액 -->
+        <div class="cart-summary">
+            <p>
+                총 <strong th:text="${#lists.size(items)}">0</strong>개 상품
+            </p>
+            <p class="cart-total">
+                결제 예정 금액
+                <strong th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</strong>
+            </p>
+            <!-- 주문하기는 이번 프로젝트 범위 밖이라 비활성화해 뒀어요 -->
+            <button type="button" class="button" disabled>주문하기 (준비 중)</button>
+        </div>
+    </th:block>
+</main>
+
+<!-- 수량 [−] [+] 버튼 동작 -->
+<script th:src="@{/js/quantity.js}"></script>
+
+</body>
+</html>

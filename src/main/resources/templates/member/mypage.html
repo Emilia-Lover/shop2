@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - SHOP2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container narrow">
+    <h1>마이페이지</h1>
+
+    <!-- 컨트롤러에서 model.addAttribute("member", ...) 로 넘긴 값 -->
+    <table class="info-table">
+        <tr>
+            <th>회원 번호</th>
+            <td th:text="${member.id}"></td>
+        </tr>
+        <tr>
+            <th>아이디</th>
+            <td th:text="${member.username}"></td>
+        </tr>
+        <tr>
+            <th>이름</th>
+            <td th:text="${member.name}"></td>
+        </tr>
+        <tr>
+            <th>이메일</th>
+            <td th:text="${member.email}"></td>
+        </tr>
+        <tr>
+            <th>가입 경로</th>
+            <td th:text="${member.provider}"></td>
+        </tr>
+        <tr>
+            <th>가입일</th>
+            <td th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+    </table>
+</main>
+
+</body>
+</html>
