@@ -22,4 +22,17 @@
         WHERE id = #{id}
     </select>
 
+    <!--
+        재고 줄이기
+        AND stock >= #{quantity} → 재고가 충분할 때만 줄여요.
+        두 사람이 마지막 1개를 동시에 주문해도, DB가 한 명만 성공시켜요.
+        (실패한 쪽은 바뀐 줄 수가 0이라서 "재고 부족"으로 처리돼요)
+    -->
+    <update id="decreaseStock">
+        UPDATE product
+        SET stock = stock - #{quantity}
+        WHERE id = #{id}
+        AND stock >= #{quantity}
+    </update>
+
 </mapper>

@@ -58,7 +58,7 @@
             <!-- 상품 설명: DB에 넣은 줄바꿈(\n)이 그대로 보이도록 CSS에서 pre-line 처리 -->
             <p class="detail-description" th:text="${product.description}">상품 설명</p>
 
-            <!-- ===== 장바구니 담기 영역 ===== -->
+            <!-- ===== 장바구니 담기 / 바로 구매 영역 ===== -->
 
             <!-- ① 품절이면 누를 수 없는 버튼 -->
             <button type="button" class="button button-full" th:if="${product.soldOut}" disabled>
@@ -67,7 +67,7 @@
 
             <th:block th:unless="${product.soldOut}">
 
-                <!-- ② 로그인했으면: 수량 선택 + 담기 -->
+                <!-- ② 로그인했으면: 수량 선택 + 담기 + 바로 구매 -->
                 <form sec:authorize="isAuthenticated()"
                       th:action="@{/cart/add}" method="post" class="cart-form">
                     <!-- 어떤 상품인지 같이 보내요 (화면에는 안 보임) -->
@@ -75,11 +75,7 @@
 
                     <label for="quantity">수량</label>
 
-                    <!--
-                        [−] [숫자] [+] 묶음
-                        type="button" → 눌러도 form이 전송되지 않아요 (숫자만 바뀜)
-                        min, max → JS가 이 범위 안에서만 숫자를 바꿔요 (서버에서도 한 번 더 검사해요)
-                    -->
+                    <!-- [−] [숫자] [+] 묶음 -->
                     <div class="qty-stepper">
                         <button type="button" class="qty-btn" data-step="-1" aria-label="수량 줄이기">−</button>
                         <input type="number" id="quantity" name="quantity" class="qty-input"
@@ -88,20 +84,36 @@
                     </div>
 
                     <button type="submit" class="button">장바구니 담기</button>
+
+                    <!--
+                        바로 구매: 장바구니를 거치지 않고 주문서로 이동
+                        type="button" → 이 form(장바구니 담기)을 전송하지 않아요
+                        data-buy-url → quantity.js가 여기에 "&quantity=수량"을 붙여서 이동해요
+                    -->
+                    <button type="button" class="button button-dark button-buy"
+                            th:attr="data-buy-url=@{/order/checkout(productId=${product.id})}">
+                        바로 구매
+                    </button>
                 </form>
 
-                <!-- ③ 로그인 안 했으면: 로그인 화면으로 갔다가 이 상품으로 돌아오기 -->
-                <a sec:authorize="isAnonymous()"
-                   class="button button-full button-link"
-                   th:href="@{/cart/login-then/{id}(id=${product.id})}">
-                    로그인하고 장바구니 담기
-                </a>
+                <!-- ③ 로그인 안 했으면: 로그인한 뒤 원래 하려던 곳으로 돌아와요 -->
+                <div sec:authorize="isAnonymous()" class="guest-buttons">
+                    <a class="button button-link"
+                       th:href="@{/cart/login-then/{id}(id=${product.id})}">
+                        로그인하고 장바구니 담기
+                    </a>
+                    <!-- /order/checkout 도 로그인이 필요해서, 로그인 후 바로 주문서로 이동해요 -->
+                    <a class="button button-link button-dark"
+                       th:href="@{/order/checkout(productId=${product.id},quantity=1)}">
+                        로그인하고 바로 구매
+                    </a>
+                </div>
             </th:block>
         </div>
     </div>
 </main>
 
-<!-- 수량 [−] [+] 버튼 동작 -->
+<!-- 수량 [−] [+] 버튼, 바로 구매 버튼 동작 -->
 <script th:src="@{/js/quantity.js}"></script>
 
 </body>

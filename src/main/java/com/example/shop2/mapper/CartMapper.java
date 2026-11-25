@@ -30,6 +30,10 @@ public interface CartMapper {
     CartItemView findByIdAndMemberId(@Param("id") Long id,
                                      @Param("memberId") Long memberId);
 
+    // 장바구니에서 선택한 여러 줄 찾기 (본인 것만) - 주문서에서 사용
+    List<CartItemView> findByIdsAndMemberId(@Param("ids") List<Long> ids,
+                                            @Param("memberId") Long memberId);
+
     // 수량 바꾸기 (본인 것만)
     int updateQuantity(@Param("id") Long id,
                        @Param("memberId") Long memberId,
@@ -38,4 +42,8 @@ public interface CartMapper {
     // 장바구니에서 빼기 (본인 것만)
     int delete(@Param("id") Long id,
                @Param("memberId") Long memberId);
+
+    // 장바구니에서 여러 줄 한 번에 빼기 (본인 것만) - 주문 완료 후 사용
+    int deleteByIds(@Param("ids") List<Long> ids,
+                    @Param("memberId") Long memberId);
 }

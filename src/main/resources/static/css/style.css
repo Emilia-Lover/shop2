@@ -49,6 +49,9 @@ a { color: inherit; text-decoration: none; }
 .button-full { width: 100%; }
 /* <a> 태그를 버튼처럼 보이게 */
 .button-link { display: inline-block; text-align: center; }
+/* 바로 구매, 전체 주문 같은 두 번째 버튼 (진한 회색) */
+.button-dark { background: #2b2f36; }
+.button-dark:hover { background: #111418; }
 
 /* 메시지 */
 .error { margin: 0; color: #d93025; font-size: 13px; }
@@ -60,7 +63,7 @@ a { color: inherit; text-decoration: none; }
 .sub-link { margin-top: 16px; text-align: center; font-size: 14px; color: #666; }
 .sub-link a { color: #2f6fed; font-weight: bold; }
 
-/* 정보 표 (마이페이지, 상품 상세에서 사용) */
+/* 정보 표 (마이페이지, 상품 상세, 주문 상세에서 사용) */
 .info-table {
     width: 100%;
     table-layout: fixed;          /* 내용이 길어도 표 너비가 늘어나지 않게 고정 */
@@ -146,26 +149,36 @@ a { color: inherit; text-decoration: none; }
 .detail-description { margin: 20px 0 0; line-height: 1.7; color: #444; white-space: pre-line; }
 .text-soldout { color: #d93025; font-weight: bold; }
 
-/* 상품 상세 - 장바구니 담기 폼 (수량 + 버튼 한 줄) */
-.cart-form { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+/* 상품 상세 - 수량 + [장바구니 담기] + [바로 구매] 한 줄 */
+.cart-form { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
 .cart-form label { font-weight: bold; font-size: 14px; }
-.cart-form .button { margin-top: 0; flex: 1; align-self: stretch; }
+.cart-form .button { margin-top: 0; flex: 1; align-self: stretch; padding: 12px 8px; white-space: nowrap; }
+
+/* 상품 상세 - 로그인 안 했을 때 버튼 두 개 */
+.guest-buttons { display: flex; gap: 10px; margin-top: 20px; }
+.guest-buttons .button {
+    flex: 1;                      /* 두 버튼 너비를 똑같이 */
+    margin-top: 0;
+    padding: 13px 8px;            /* 좌우 여백을 줄여서 글씨가 한 줄에 들어가게 */
+    font-size: 15px;
+    white-space: nowrap;          /* "담기"가 두 줄로 나뉘지 않게 */
+    display: flex;                /* 글씨를 버튼 정가운데로 */
+    align-items: center;
+    justify-content: center;
+}
 
 /* ===== 수량 [−] [숫자] [+] (상품 상세, 장바구니 공통) ===== */
-/* 세 칸을 하나의 테두리로 묶어요 */
 .qty-stepper {
     display: inline-flex;
     align-items: stretch;
     height: 42px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    overflow: hidden;             /* 안쪽 버튼 모서리가 둥근 테두리 밖으로 삐져나오지 않게 */
+    overflow: hidden;
     background: #fff;
 }
-/* 숫자칸을 클릭하면 바깥 테두리 전체가 파란색으로 */
 .qty-stepper:focus-within { border-color: #2f6fed; }
 
-/* [−] [+] 버튼 */
 .qty-btn {
     width: 38px;
     padding: 0;
@@ -177,10 +190,8 @@ a { color: inherit; text-decoration: none; }
     cursor: pointer;
 }
 .qty-btn:hover:not(:disabled) { background: #e5e7eb; }
-/* 1이거나 재고만큼 담았으면 회색으로 눌리지 않게 */
 .qty-btn:disabled { color: #c4c7cc; cursor: not-allowed; }
 
-/* 가운데 숫자칸 */
 .qty-input {
     width: 52px;
     padding: 0;
@@ -200,7 +211,7 @@ a { color: inherit; text-decoration: none; }
     margin: 0;
 }
 
-/* ===== 장바구니 화면 ===== */
+/* ===== 장바구니 화면 (주문서, 주문 내역도 같은 표 모양 사용) ===== */
 .cart-table {
     width: 100%;
     margin-top: 16px;
@@ -220,6 +231,10 @@ a { color: inherit; text-decoration: none; }
 .cart-table .col-price { text-align: right; white-space: nowrap; }
 .cart-table .col-qty { text-align: center; white-space: nowrap; }
 .cart-table .col-delete { text-align: center; width: 90px; white-space: nowrap; }
+.cart-table .col-check { width: 44px; text-align: center; }
+
+/* 체크박스 크게 */
+.cart-check, .cart-check-all { width: 18px; height: 18px; cursor: pointer; accent-color: #2f6fed; }
 
 .cart-product { display: flex; align-items: center; gap: 14px; }
 .cart-product img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; }
@@ -229,6 +244,7 @@ a { color: inherit; text-decoration: none; }
 
 .qty-form { display: inline-flex; align-items: center; gap: 8px; }
 .button-small {
+    display: inline-block;
     padding: 8px 12px;
     background: #2f6fed; color: #fff;
     border: none; border-radius: 6px;
@@ -243,7 +259,7 @@ a { color: inherit; text-decoration: none; }
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
     margin-top: 20px;
     padding: 20px 24px;
     background: #fff;
@@ -251,7 +267,8 @@ a { color: inherit; text-decoration: none; }
     border-radius: 8px;
 }
 .cart-summary p { margin: 0; }
-.cart-summary .button { margin-top: 0; padding: 12px 28px; }
+.cart-summary .button { margin-top: 0; padding: 12px 24px; }
+.cart-total { margin-right: 8px !important; }
 .cart-total strong { margin-left: 8px; font-size: 24px; color: #2f6fed; }
 
 .cart-empty {
@@ -264,13 +281,29 @@ a { color: inherit; text-decoration: none; }
 }
 .cart-empty .button { padding: 12px 28px; }
 
+/* ===== 주문 ===== */
+.section-title { display: flex; align-items: center; gap: 10px; margin: 32px 0 0; font-size: 19px; }
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #e8f0fe;
+    color: #1a4fb8;
+    font-size: 13px;
+    font-weight: bold;
+}
+.order-form { margin-top: 16px; }
+.pay-notice { margin: 10px 4px 0; text-align: right; color: #888; font-size: 13px; }
+
 /* ===== 404 화면 ===== */
 .error-page { text-align: center; padding-top: 40px; }
 .error-code { margin: 0; font-size: 72px; font-weight: bold; color: #2f6fed; }
 .error-page .button { padding: 12px 28px; }
 
-/* 화면이 좁으면(휴대폰) 사진과 정보를 위아래로 */
+/* 화면이 좁으면(휴대폰) 위아래로 */
 @media (max-width: 700px) {
     .product-detail { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
     .cart-summary { flex-direction: column; align-items: flex-end; gap: 12px; }
+    .cart-form { flex-wrap: wrap; }
+    .guest-buttons { flex-direction: column; }   /* 휴대폰에서는 버튼을 위아래로 */
 }

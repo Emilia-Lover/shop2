@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.shop2.mapper.OrderMapper">
+
+    <!-- 주문 저장: useGeneratedKeys 덕분에 저장 후 order.id에 새 주문 번호가 채워져요 -->
+    <insert id="insertOrder" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (member_id, total_price, status, receiver_name, phone, address)
+        VALUES (#{memberId}, #{totalPrice}, #{status}, #{receiverName}, #{phone}, #{address})
+    </insert>
+
+    <!-- 주문 상품 한 줄 저장 -->
+    <insert id="insertOrderItem" parameterType="OrderItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_item (order_id, product_id, brand, product_name, price, quantity)
+        VALUES (#{orderId}, #{productId}, #{brand}, #{productName}, #{price}, #{quantity})
+    </insert>
+
+    <!--
+        주문 목록
+        괄호 안의 SELECT(서브쿼리)로 "첫 번째 상품 이름"과 "상품 종류 수"를 같이 구해요
+        → 화면에서 "TV 외 2건"처럼 보여줄 때 사용
+    -->
+    <select id="findByMemberId" parameterType="Long" resultType="Order">
+        SELECT o.id, o.member_id, o.total_price, o.status,
+        o.receiver_name, o.phone, o.address, o.created_at,
+        (SELECT oi.product_name
+        FROM order_item oi
+        WHERE oi.order_id = o.id
+        ORDER BY oi.id
+        LIMIT 1)                        AS first_item_name,
+        (SELECT COUNT(*)
+        FROM order_item oi
+        WHERE oi.order_id = o.id)       AS item_count
+        FROM orders o
+        WHERE o.member_id = #{memberId}
+        ORDER BY o.id DESC
+    </select>
+
+    <!-- 주문 한 건 - member_id 조건으로 남의 주문은 못 보게 막아요 -->
+    <select id="findByIdAndMemberId" resultType="Order">
+        SELECT id, member_id, total_price, status,
+        receiver_name, phone, address, created_at
+        FROM orders
+        WHERE id = #{id}
+        AND member_id = #{memberId}
+    </select>
+
+    <!-- 주문 안의 상품들 -->
+    <select id="findItemsByOrderId" parameterType="Long" resultType="OrderItem">
+        SELECT id, order_id, product_id, brand, product_name, price, quantity
+        FROM order_item
+        WHERE order_id = #{orderId}
+        ORDER BY id
+    </select>
+
+</mapper>

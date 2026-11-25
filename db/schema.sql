@@ -13,6 +13,9 @@ USE shop2db;
 
 -- 2. 테이블 만들기
 -- ⚠️ 아래 DROP 문은 기존 테이블과 데이터를 모두 지워요. 처음 설치할 때만 실행하세요.
+-- (다른 테이블이 참조하는 테이블은 나중에 지워야 해서 순서가 중요해요)
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart_item;
 DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS member;
@@ -52,6 +55,32 @@ CREATE TABLE cart_item (
                            UNIQUE KEY uk_cart_member_product (member_id, product_id),
                            CONSTRAINT fk_cart_member  FOREIGN KEY (member_id)  REFERENCES member(id)  ON DELETE CASCADE,
                            CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+);
+
+-- 주문
+CREATE TABLE orders (
+                        id             BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '주문 번호',
+                        member_id      BIGINT       NOT NULL                   COMMENT '주문한 회원',
+                        total_price    BIGINT       NOT NULL                   COMMENT '총 결제 금액',
+                        status         VARCHAR(20)  NOT NULL DEFAULT 'ORDERED' COMMENT '주문 상태: ORDERED(주문완료)',
+                        receiver_name  VARCHAR(50)  NOT NULL                   COMMENT '받는 분',
+                        phone          VARCHAR(20)  NOT NULL                   COMMENT '연락처',
+                        address        VARCHAR(200) NOT NULL                   COMMENT '배송 주소',
+                        created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '주문일',
+                        CONSTRAINT fk_orders_member FOREIGN KEY (member_id) REFERENCES member(id)
+);
+
+-- 주문 상품 (주문 당시의 이름, 가격을 그대로 저장)
+CREATE TABLE order_item (
+                            id            BIGINT        AUTO_INCREMENT PRIMARY KEY COMMENT '주문 상품 번호',
+                            order_id      BIGINT        NOT NULL                   COMMENT '어느 주문인지',
+                            product_id    BIGINT        NOT NULL                   COMMENT '어떤 상품인지',
+                            brand         VARCHAR(50)   NOT NULL                   COMMENT '주문 당시 브랜드',
+                            product_name  VARCHAR(100)  NOT NULL                   COMMENT '주문 당시 상품 이름',
+                            price         INT           NOT NULL                   COMMENT '주문 당시 가격',
+                            quantity      INT           NOT NULL                   COMMENT '수량',
+                            CONSTRAINT fk_order_item_order   FOREIGN KEY (order_id)   REFERENCES orders(id) ON DELETE CASCADE,
+                            CONSTRAINT fk_order_item_product FOREIGN KEY (product_id) REFERENCES product(id)
 );
 
 -- 3. 샘플 가전제품 8개 (브랜드는 모두 가상 브랜드)

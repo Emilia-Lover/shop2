@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 내역 - SHOP2</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container">
+    <h1>주문 내역</h1>
+
+    <!-- 주문이 없을 때 -->
+    <div class="cart-empty" th:if="${#lists.isEmpty(orders)}">
+        <p>아직 주문한 상품이 없어요.</p>
+        <a class="button button-link" th:href="@{/}">가전제품 구경하러 가기</a>
+    </div>
+
+    <!-- 주문이 있을 때 -->
+    <table class="cart-table" th:unless="${#lists.isEmpty(orders)}">
+        <thead>
+        <tr>
+            <th>주문번호</th>
+            <th>주문일</th>
+            <th>상품</th>
+            <th class="col-price">결제 금액</th>
+            <th class="col-qty">상태</th>
+            <th class="col-delete"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}">1</td>
+            <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2026-01-01</td>
+            <!-- "TV 외 2건" (Order.getSummaryName()) -->
+            <td th:text="${order.summaryName}">상품 이름</td>
+            <td class="col-price cart-line-total"
+                th:text="${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')} + '원'">0원</td>
+            <td class="col-qty"><span class="badge" th:text="${order.statusName}">주문완료</span></td>
+            <td class="col-delete">
+                <a class="button-small" th:href="@{/orders/{id}(id=${order.id})}">상세</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+</body>
+</html>

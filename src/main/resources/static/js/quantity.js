@@ -1,5 +1,5 @@
 /**
- * 수량 [−] [+] 버튼 동작
+ * 수량 [−] [+] 버튼 동작 + [바로 구매] 버튼 동작
  *
  * HTML 구조:
  * <div class="qty-stepper">
@@ -20,7 +20,6 @@ function getRange(input) {
 }
 
 // 현재 숫자에 맞춰 [−] [+] 버튼을 켜거나 끄기
-// 예) 1이면 [−] 끄기, 재고와 같으면 [+] 끄기
 function updateButtons(stepper) {
     const input = stepper.querySelector('.qty-input');
     const minusButton = stepper.querySelector('.qty-btn[data-step="-1"]');
@@ -32,8 +31,7 @@ function updateButtons(stepper) {
     plusButton.disabled = isNaN(value) || value >= max;
 }
 
-// [−] [+] 버튼을 눌렀을 때
-// 버튼마다 따로 연결하지 않고, 화면 전체에서 클릭을 한 번에 받아서 처리해요 (이벤트 위임)
+// [−] [+] 버튼을 눌렀을 때 (이벤트 위임: 화면 전체에서 클릭을 한 번에 받아요)
 document.addEventListener('click', function (event) {
     const button = event.target.closest('.qty-btn');
     if (!button) {
@@ -62,6 +60,25 @@ document.addEventListener('input', function (event) {
     if (event.target.classList.contains('qty-input')) {
         updateButtons(event.target.closest('.qty-stepper'));
     }
+});
+
+// [바로 구매] 버튼: 같은 form 안의 수량을 읽어서 주문서로 이동
+// 예) /order/checkout?productId=1  +  &quantity=2
+document.addEventListener('click', function (event) {
+    const buyButton = event.target.closest('.button-buy');
+    if (!buyButton) {
+        return;
+    }
+
+    const form = buyButton.closest('form');
+    const input = form.querySelector('.qty-input');
+
+    // 수량이 범위를 벗어났으면 브라우저 기본 안내("값은 12 이하여야 합니다")를 보여주고 멈춰요
+    if (!input.reportValidity()) {
+        return;
+    }
+
+    window.location.href = buyButton.dataset.buyUrl + '&quantity=' + encodeURIComponent(input.value);
 });
 
 // 화면이 처음 열릴 때 모든 수량칸의 버튼 상태 맞추기

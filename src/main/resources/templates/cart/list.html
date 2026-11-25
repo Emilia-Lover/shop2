@@ -28,6 +28,11 @@
         <table class="cart-table">
             <thead>
             <tr>
+                <!-- 전체 선택 체크박스 -->
+                <th class="col-check">
+                    <input type="checkbox" id="check-all" class="cart-check-all" checked
+                           aria-label="전체 선택">
+                </th>
                 <th>상품</th>
                 <th class="col-price">가격</th>
                 <th class="col-qty">수량</th>
@@ -37,6 +42,18 @@
             </thead>
             <tbody>
             <tr th:each="item : ${items}">
+                <!--
+                    주문할 상품 선택 체크박스
+                    form="checkoutForm" → 아래쪽 주문 form과 함께 전송돼요
+                    data-total → 선택 금액 계산용 (cart.js가 읽어요)
+                -->
+                <td class="col-check">
+                    <input type="checkbox" name="cartItemIds" class="cart-check" form="checkoutForm"
+                           th:value="${item.cartItemId}"
+                           th:attr="data-total=${item.totalPrice}"
+                           checked aria-label="주문할 상품 선택">
+                </td>
+
                 <!-- 상품 (사진 + 브랜드 + 이름) → 누르면 상품 상세로 -->
                 <td>
                     <a class="cart-product" th:href="@{/products/{id}(id=${item.productId})}">
@@ -79,23 +96,31 @@
             </tbody>
         </table>
 
-        <!-- 총 금액 -->
-        <div class="cart-summary">
+        <!--
+            ===== 주문하기 =====
+            method="get" → 체크한 상품 번호가 /order/checkout?cartItemIds=3&cartItemIds=5 로 전송돼요
+        -->
+        <form id="checkoutForm" th:action="@{/order/checkout}" method="get" class="cart-summary">
             <p>
-                총 <strong th:text="${#lists.size(items)}">0</strong>개 상품
+                선택 <strong id="selected-count" th:text="${#lists.size(items)}">0</strong>개 상품
             </p>
             <p class="cart-total">
                 결제 예정 금액
-                <strong th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</strong>
+                <strong id="selected-total"
+                        th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + '원'">0원</strong>
             </p>
-            <!-- 주문하기는 이번 프로젝트 범위 밖이라 비활성화해 뒀어요 -->
-            <button type="button" class="button" disabled>주문하기 (준비 중)</button>
-        </div>
+            <!-- 체크한 상품만 주문 -->
+            <button type="submit" id="order-selected-btn" class="button">선택 상품 주문</button>
+            <!-- 체크와 상관없이 장바구니 전체 주문 -->
+            <a class="button button-link button-dark" th:href="@{/order/checkout(all=true)}">전체 주문</a>
+        </form>
     </th:block>
 </main>
 
 <!-- 수량 [−] [+] 버튼 동작 -->
 <script th:src="@{/js/quantity.js}"></script>
+<!-- 체크박스: 전체 선택, 선택 금액 계산 -->
+<script th:src="@{/js/cart.js}"></script>
 
 </body>
 </html>
